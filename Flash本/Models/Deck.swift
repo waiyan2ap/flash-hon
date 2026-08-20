@@ -7,6 +7,7 @@ final class Deck {
     var name: String
     var desc: String
     var deckType: String = "vocab"
+    var isFavorite: Bool = false
     var createdAt: Date
     @Relationship(deleteRule: .cascade) var cards: [Card] = []
 

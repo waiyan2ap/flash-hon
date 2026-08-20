@@ -4,7 +4,14 @@ import UniformTypeIdentifiers
 
 struct DeckListView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \Deck.createdAt, order: .reverse) private var decks: [Deck]
+    @Query private var allDecks: [Deck]
+
+    private var decks: [Deck] {
+        allDecks.sorted {
+            if $0.isFavorite != $1.isFavorite { return $0.isFavorite }
+            return $0.createdAt > $1.createdAt
+        }
+    }
     @State private var showingAddDeck = false
     @State private var newDeckName = ""
     @State private var newDeckType = "vocab"
@@ -67,8 +74,40 @@ struct DeckListView: View {
                 NavigationLink(destination: DeckDetailView(deck: deck)) {
                     DeckRowView(deck: deck)
                 }
+                .swipeActions(edge: .leading) {
+                    Button {
+                        withAnimation { deck.isFavorite.toggle() }
+                    } label: {
+                        Label(
+                            deck.isFavorite ? "Unfavorite" : "Favorite",
+                            systemImage: deck.isFavorite ? "bookmark.slash" : "bookmark.fill"
+                        )
+                    }
+                    .tint(.orange)
+                }
+                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                    Button(role: .destructive) {
+                        modelContext.delete(deck)
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                }
+                .contextMenu {
+                    Button {
+                        withAnimation { deck.isFavorite.toggle() }
+                    } label: {
+                        Label(
+                            deck.isFavorite ? "Unfavorite" : "Favorite",
+                            systemImage: deck.isFavorite ? "bookmark.slash" : "bookmark.fill"
+                        )
+                    }
+                    Button(role: .destructive) {
+                        modelContext.delete(deck)
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                }
             }
-            .onDelete(perform: deleteDecks)
         }
     }
 
@@ -124,12 +163,6 @@ struct DeckListView: View {
         showingAddDeck = false
     }
 
-    private func deleteDecks(at offsets: IndexSet) {
-        for index in offsets {
-            modelContext.delete(decks[index])
-        }
-    }
-
     private func handleImport(_ result: Result<URL, Error>) {
         guard case .success(let url) = result else { return }
 
@@ -169,14 +202,22 @@ struct DeckRowView: View {
 
             Spacer()
 
-            Text(deck.isKanjiDeck ? "Kanji" : "Vocab")
-                .font(.caption)
-                .fontWeight(.medium)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 3)
-                .background((deck.isKanjiDeck ? Color.orange : Color.blue).opacity(0.15))
-                .foregroundStyle(deck.isKanjiDeck ? .orange : .blue)
-                .clipShape(Capsule())
+            HStack(spacing: 6) {
+                if deck.isFavorite {
+                    Image(systemName: "bookmark.fill")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                }
+
+                Text(deck.isKanjiDeck ? "Kanji" : "Vocab")
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background((deck.isKanjiDeck ? Color.orange : Color.blue).opacity(0.15))
+                    .foregroundStyle(deck.isKanjiDeck ? .orange : .blue)
+                    .clipShape(Capsule())
+            }
         }
         .padding(.vertical, 4)
     }

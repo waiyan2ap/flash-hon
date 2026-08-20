@@ -16,6 +16,7 @@ struct LibraryExport: Codable {
 struct DeckExport: Codable {
     let name: String
     let deckType: String
+    let isFavorite: Bool
     let cards: [CardExport]
 }
 
@@ -54,6 +55,7 @@ enum DeckTransfer {
         DeckExport(
             name: deck.name,
             deckType: deck.deckType,
+            isFavorite: deck.isFavorite,
             cards: deck.cards.map { cardToExport($0) }
         )
     }
@@ -83,6 +85,7 @@ enum DeckImporter {
         for export in exportDecks {
             let name = autoRename(export.name, usedNames: &usedNames)
             let deck = Deck(name: name, deckType: export.deckType)
+            deck.isFavorite = export.isFavorite
             modelContext.insert(deck)
 
             for cardExport in export.cards {
