@@ -128,6 +128,35 @@ struct ResetDataView: View {
     }
 }
 
+struct ExportAllView: View {
+    @Query(sort: \Deck.createdAt) private var decks: [Deck]
+
+    var body: some View {
+        List {
+            if decks.isEmpty {
+                ContentUnavailableView(
+                    "No Decks to Export",
+                    systemImage: "square.and.arrow.up",
+                    description: Text("Create some decks first to export them.")
+                )
+            } else {
+                Section {
+                    if let data = DeckTransfer.encodeLibrary(decks) {
+                        let url = FileManager.default.temporaryDirectory.appendingPathComponent("Flash本_decks.json")
+                        ShareLink(item: url, preview: SharePreview("All Decks")) {
+                            Label("Export All Decks", systemImage: "square.and.arrow.up")
+                        }
+                        .onAppear { try? data.write(to: url) }
+                    }
+                } footer: {
+                    Text("Export all \(decks.count) deck\(decks.count == 1 ? "" : "s") as a JSON file.")
+                }
+            }
+        }
+        .navigationTitle("Backup")
+    }
+}
+
 struct StatRow: View {
     let label: String
     let value: String

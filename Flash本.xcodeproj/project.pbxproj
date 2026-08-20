@@ -23,6 +23,7 @@
 		A20000000000000000000019 /* SessionResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000018 /* SessionResult.swift */; };
 		A20000000000000000000020 /* SettingsDetailViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000022 /* SettingsDetailViews.swift */; };
 		A20000000000000000000021 /* SampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000023 /* SampleData.swift */; };
+		A20000000000000000000022 /* DeckTransfer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000024 /* DeckTransfer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +42,7 @@
 		A10000000000000000000018 /* SessionResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionResult.swift; sourceTree = "<group>"; };
 		A10000000000000000000022 /* SettingsDetailViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsDetailViews.swift; sourceTree = "<group>"; };
 		A10000000000000000000023 /* SampleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleData.swift; sourceTree = "<group>"; };
+		A10000000000000000000024 /* DeckTransfer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckTransfer.swift; sourceTree = "<group>"; };
 		A10000000000000000000021 /* Flash本/Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Flash本/Assets.xcassets"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -137,6 +139,7 @@
 			children = (
 				A10000000000000000000016 /* FuriganaParser.swift */,
 				A10000000000000000000023 /* SampleData.swift */,
+				A10000000000000000000024 /* DeckTransfer.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -225,6 +228,7 @@
 				A20000000000000000000019 /* SessionResult.swift in Sources */,
 				A20000000000000000000020 /* SettingsDetailViews.swift in Sources */,
 				A20000000000000000000021 /* SampleData.swift in Sources */,
+				A20000000000000000000022 /* DeckTransfer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

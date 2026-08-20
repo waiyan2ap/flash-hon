@@ -37,6 +37,15 @@ struct DeckDetailView: View {
         }
         .navigationTitle(deck.name)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                if !deck.cards.isEmpty, let data = DeckTransfer.encodeSingleDeck(deck) {
+                    let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(deck.name).json")
+                    ShareLink(item: url, preview: SharePreview(deck.name)) {
+                        Image(systemName: "square.and.arrow.up")
+                    }
+                    .onAppear { try? data.write(to: url) }
+                }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: { showingAddCard = true }) {
                     Image(systemName: "plus")

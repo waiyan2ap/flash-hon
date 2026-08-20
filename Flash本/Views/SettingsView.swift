@@ -10,6 +10,9 @@ struct SettingsView: View {
                 NavigationLink(destination: AppearanceView()) {
                     Label("Appearance", systemImage: "paintbrush")
                 }
+                NavigationLink(destination: ExportAllView()) {
+                    Label("Backup", systemImage: "square.and.arrow.up")
+                }
                 NavigationLink(destination: ResetDataView()) {
                     Label("Reset Data", systemImage: "trash")
                         .foregroundStyle(.red)

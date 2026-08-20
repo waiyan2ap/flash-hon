@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UniformTypeIdentifiers
 
 struct DeckListView: View {
     @Environment(\.modelContext) private var modelContext
@@ -7,6 +8,8 @@ struct DeckListView: View {
     @State private var showingAddDeck = false
     @State private var newDeckName = ""
     @State private var newDeckType = "vocab"
+    @State private var showingImportPicker = false
+    @State private var importResult: String?
 
     var body: some View {
         NavigationStack {
@@ -19,6 +22,11 @@ struct DeckListView: View {
             }
             .navigationTitle("Decks")
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: { showingImportPicker = true }) {
+                        Image(systemName: "arrow.down.doc")
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { showingAddDeck = true }) {
                         Image(systemName: "plus")
@@ -27,6 +35,20 @@ struct DeckListView: View {
             }
             .sheet(isPresented: $showingAddDeck) {
                 addDeckSheet
+            }
+            .fileImporter(
+                isPresented: $showingImportPicker,
+                allowedContentTypes: [.json]
+            ) { result in
+                handleImport(result)
+            }
+            .alert("Import Complete", isPresented: Binding(
+                get: { importResult != nil },
+                set: { if !$0 { importResult = nil } }
+            )) {
+                Button("OK") { importResult = nil }
+            } message: {
+                if let msg = importResult { Text(msg) }
             }
         }
     }
@@ -106,6 +128,23 @@ struct DeckListView: View {
         for index in offsets {
             modelContext.delete(decks[index])
         }
+    }
+
+    private func handleImport(_ result: Result<URL, Error>) {
+        guard case .success(let url) = result else { return }
+
+        let accessing = url.startAccessingSecurityScopedResource()
+        defer { if accessing { url.stopAccessingSecurityScopedResource() } }
+
+        guard let data = try? Data(contentsOf: url) else { return }
+        guard let exportDecks = try? DeckTransfer.decodeLibrary(data) else { return }
+
+        let count = DeckImporter.importDecks(
+            from: exportDecks,
+            into: modelContext,
+            existingDecks: Array(decks)
+        )
+        importResult = "Imported \(count) deck\(count == 1 ? "" : "s")."
     }
 
     }
