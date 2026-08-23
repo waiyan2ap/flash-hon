@@ -8,6 +8,8 @@ final class SessionResult {
     var correctCount: Int
     var totalCount: Int
     var date: Date
+    var updatedAt: Date = Date()
+    var deletedAt: Date? = nil
 
     var accuracy: Double {
         guard totalCount > 0 else { return 0 }

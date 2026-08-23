@@ -76,7 +76,7 @@ struct DeckListView: View {
                 }
                 .swipeActions(edge: .leading) {
                     Button {
-                        withAnimation { deck.isFavorite.toggle() }
+                        withAnimation { toggleFavorite(deck) }
                     } label: {
                         Label(
                             deck.isFavorite ? "Unfavorite" : "Favorite",
@@ -87,14 +87,14 @@ struct DeckListView: View {
                 }
                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                     Button(role: .destructive) {
-                        modelContext.delete(deck)
+                        deleteDeck(deck)
                     } label: {
                         Label("Delete", systemImage: "trash")
                     }
                 }
                 .contextMenu {
                     Button {
-                        withAnimation { deck.isFavorite.toggle() }
+                        withAnimation { toggleFavorite(deck) }
                     } label: {
                         Label(
                             deck.isFavorite ? "Unfavorite" : "Favorite",
@@ -102,7 +102,7 @@ struct DeckListView: View {
                         )
                     }
                     Button(role: .destructive) {
-                        modelContext.delete(deck)
+                        deleteDeck(deck)
                     } label: {
                         Label("Delete", systemImage: "trash")
                     }
@@ -161,6 +161,17 @@ struct DeckListView: View {
         newDeckName = ""
         newDeckType = "vocab"
         showingAddDeck = false
+    }
+
+    private func toggleFavorite(_ deck: Deck) {
+        deck.isFavorite.toggle()
+        deck.updatedAt = .now
+    }
+
+    private func deleteDeck(_ deck: Deck) {
+        SyncEngine.recordDelete("deck", id: deck.id)
+        deck.cards.forEach { SyncEngine.recordDelete("card", id: $0.id) }
+        modelContext.delete(deck)
     }
 
     private func handleImport(_ result: Result<URL, Error>) {

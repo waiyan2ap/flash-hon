@@ -9,6 +9,8 @@ final class Deck {
     var deckType: String = "vocab"
     var isFavorite: Bool = false
     var createdAt: Date
+    var updatedAt: Date = Date()
+    var deletedAt: Date? = nil
     @Relationship(deleteRule: .cascade) var cards: [Card] = []
 
     init(name: String, description: String = "", deckType: String = "vocab") {

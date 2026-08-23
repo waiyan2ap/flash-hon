@@ -141,6 +141,7 @@ struct AddCardView: View {
                 card.onyomi = nil
                 card.kunyomi = nil
             }
+            card.updatedAt = .now
         } else {
             let card: Card
             if isKanji {

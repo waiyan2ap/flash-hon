@@ -92,6 +92,8 @@ struct ResetDataView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var showResetAlert = false
 
+    private var isSignedIn: Bool { AuthService.shared.isSignedIn }
+
     var body: some View {
         Form {
             Section {
@@ -99,7 +101,9 @@ struct ResetDataView: View {
                     showResetAlert = true
                 }
             } footer: {
-                Text("Deletes all decks, cards, and session history permanently.")
+                Text(isSignedIn
+                    ? "Deletes all decks, cards, and session history permanently — on this device AND in your synced cloud account (all devices)."
+                    : "Deletes all decks, cards, and session history permanently.")
             }
         }
         .navigationTitle("Reset Data")
@@ -107,11 +111,18 @@ struct ResetDataView: View {
             Button("Cancel", role: .cancel) {}
             Button("Delete Everything", role: .destructive) { deleteAll() }
         } message: {
-            Text("This will delete all decks, cards, and session history. This cannot be undone.")
+            Text(isSignedIn
+                ? "This will delete all data on this device and in your synced cloud account. This cannot be undone."
+                : "This will delete all decks, cards, and session history. This cannot be undone.")
         }
     }
 
     private func deleteAll() {
+        if FirebaseBootstrap.isConfigured && isSignedIn {
+            Task { await SyncEngine.shared.purgeCloudData() }
+        } else {
+            SyncEngine.clearPendingDeletions()
+        }
         let sessionDescriptor = FetchDescriptor<SessionResult>()
         if let sessions = try? modelContext.fetch(sessionDescriptor) {
             for session in sessions {
@@ -142,7 +153,7 @@ struct ExportAllView: View {
             } else {
                 Section {
                     if let data = DeckTransfer.encodeLibrary(decks) {
-                        let url = FileManager.default.temporaryDirectory.appendingPathComponent("Flash本_decks.json")
+                        let url = FileManager.default.temporaryDirectory.appendingPathComponent("FlashHon_decks.json")
                         ShareLink(item: url, preview: SharePreview("All Decks")) {
                             Label("Export All Decks", systemImage: "square.and.arrow.up")
                         }

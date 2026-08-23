@@ -10,6 +10,8 @@ final class Card {
     var onyomi: String?
     var kunyomi: String?
     var createdAt: Date
+    var updatedAt: Date = Date()
+    var deletedAt: Date? = nil
 
     @Relationship(inverse: \Deck.cards) var deck: Deck?
 

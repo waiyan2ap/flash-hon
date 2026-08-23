@@ -165,7 +165,7 @@ struct DeckDetailView: View {
                                 Label("Edit", systemImage: "pencil")
                             }
                             Button(role: .destructive) {
-                                modelContext.delete(card)
+                                deleteCard(card)
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
@@ -180,8 +180,13 @@ struct DeckDetailView: View {
 
     private func deleteCards(at offsets: IndexSet) {
         for index in offsets {
-            modelContext.delete(filteredCards[index])
+            deleteCard(filteredCards[index])
         }
+    }
+
+    private func deleteCard(_ card: Card) {
+        SyncEngine.recordDelete("card", id: card.id)
+        modelContext.delete(card)
     }
 }
 

@@ -4,6 +4,9 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             List {
+                NavigationLink(destination: AccountView()) {
+                    Label("Account", systemImage: "person.crop.circle")
+                }
                 NavigationLink(destination: StatisticsDetailView()) {
                     Label("Statistics", systemImage: "chart.bar")
                 }
