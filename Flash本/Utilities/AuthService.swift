@@ -105,6 +105,17 @@ final class AuthService: @unchecked Sendable {
     func handleApple(result: Result<ASAuthorization, Error>) {
         switch result {
         case .failure(let error):
+            if let authError = error as? ASAuthorizationError {
+                switch authError.code {
+                case .canceled:
+                    return
+                case .unknown:
+                    errorMessage = "Apple sign-in was interrupted. Please try again."
+                    return
+                default:
+                    break
+                }
+            }
             errorMessage = Self.friendlyError(error)
         case .success(let authorization):
             guard ensureConfigured(),
@@ -186,6 +197,7 @@ final class AuthService: @unchecked Sendable {
 
     nonisolated static func friendlyError(_ error: Error) -> String {
         let nsError = error as NSError
+
         switch AuthErrorCode(rawValue: nsError.code) {
         case .invalidEmail: return "That email address looks invalid."
         case .wrongPassword, .invalidCredential, .userNotFound:
@@ -195,8 +207,23 @@ final class AuthService: @unchecked Sendable {
         case .tooManyRequests: return "Too many attempts. Try again later."
         case .networkError: return "Network error. Check your connection."
         case .userDisabled: return "This account has been disabled."
-        default: return nsError.localizedDescription
+        case .operationNotAllowed: return "This sign-in method isn't enabled in Firebase yet."
+        default: break
         }
+
+        if let reason = nsError.userInfo[NSLocalizedFailureReasonErrorKey] as? String, !reason.isEmpty {
+            return reason
+        }
+        if let underlying = nsError.userInfo[NSUnderlyingErrorKey] as? NSError,
+           let message = underlying.userInfo[NSLocalizedDescriptionKey] as? String, !message.isEmpty {
+            return message
+        }
+
+        let description = nsError.localizedDescription
+        if description.isEmpty || description == "The operation couldn't be completed." {
+            return "Sign-in failed. Please try again."
+        }
+        return description
     }
 
     private nonisolated static func randomNonceString(length: Int = 32) -> String {
